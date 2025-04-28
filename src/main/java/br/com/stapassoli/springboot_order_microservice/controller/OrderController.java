@@ -26,12 +26,8 @@ public class OrderController {
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDTO> getOrder(@PathVariable Long orderId) {
         Order order = orderService.findByOrderId(orderId);
-        if (order != null) {
-            OrderDTO orderDTO = orderMapper.toDTO(order);
-            return new ResponseEntity<>(orderDTO, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        OrderDTO orderDTO = orderMapper.toDTO(order);
+        return new ResponseEntity<>(orderDTO, HttpStatus.OK);
     }
 
 }

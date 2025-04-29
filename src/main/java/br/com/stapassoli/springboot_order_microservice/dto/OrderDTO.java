@@ -6,6 +6,7 @@ import java.util.List;
 
 public class OrderDTO {
 
+    private Long id;
     private String orderId;
     private LocalDateTime requestDate;
     private List<OrderItemDTO> items;
@@ -17,7 +18,8 @@ public class OrderDTO {
 
     public OrderDTO() {}
 
-    public OrderDTO(String orderId, LocalDateTime requestDate, List<OrderItemDTO> items, BigDecimal totalValue, String status, LocalDateTime processingStartDate, LocalDateTime processingEndDate, LocalDateTime lastUpdatedAt) {
+    public OrderDTO(Long id ,String orderId, LocalDateTime requestDate, List<OrderItemDTO> items, BigDecimal totalValue, String status, LocalDateTime processingStartDate, LocalDateTime processingEndDate, LocalDateTime lastUpdatedAt) {
+        this.id = id;
         this.orderId = orderId;
         this.requestDate = requestDate;
         this.items = items;
@@ -26,6 +28,14 @@ public class OrderDTO {
         this.processingStartDate = processingStartDate;
         this.processingEndDate = processingEndDate;
         this.lastUpdatedAt = lastUpdatedAt;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getOrderId() {

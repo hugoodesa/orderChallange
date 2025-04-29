@@ -10,6 +10,10 @@ public class OrderNotFoundException extends RuntimeException {
         super(String.format("Order not found with id: %s", orderId));
     }
 
+    public OrderNotFoundException() {
+        super("Order not found");
+    }
+
     public OrderNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }

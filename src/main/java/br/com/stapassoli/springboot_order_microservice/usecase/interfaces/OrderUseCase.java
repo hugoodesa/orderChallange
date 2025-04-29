@@ -1,12 +1,16 @@
 package br.com.stapassoli.springboot_order_microservice.usecase.interfaces;
 
+import br.com.stapassoli.springboot_order_microservice.dto.OrderDTO;
+import br.com.stapassoli.springboot_order_microservice.dto.OrderRequestDTO;
 import br.com.stapassoli.springboot_order_microservice.entity.Order;
+
+import java.util.List;
 
 public interface OrderUseCase {
 
-    void saveOrder(String orderId, String productId, Integer quantity, String customerId);
+    Order saveOrder(OrderRequestDTO orderDTO);
 
-    void updateOrder(Long orderId, String productId, Integer quantity);
+    Order updateOrder(OrderRequestDTO orderDTO);
 
     void deleteOrder(Long orderId);
 
@@ -17,5 +21,7 @@ public interface OrderUseCase {
     void completeOrder(Long orderId);
 
     Order getOrder(Long orderId);
+
+    List<Order> findAllOrders();
 
 }

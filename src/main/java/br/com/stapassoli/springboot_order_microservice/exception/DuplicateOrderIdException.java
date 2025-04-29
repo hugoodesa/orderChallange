@@ -6,6 +6,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.CONFLICT)
 public class DuplicateOrderIdException extends RuntimeException {
 
+    public DuplicateOrderIdException() {
+        super("Order already exists.");
+    }
+
     public DuplicateOrderIdException(Long orderId) {
         super(String.format("Order with ID %s already exists.", orderId));
     }

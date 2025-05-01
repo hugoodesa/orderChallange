@@ -30,7 +30,6 @@ public class OrderMessageListener {
     public void processOrdersFromQueue() {
         System.out.println("Starting scheduled order processing");
         
-        // Get a single message from the queue
         Message message = rabbitTemplate.receive("order.queue");
         
         if (message != null) {
@@ -38,28 +37,22 @@ public class OrderMessageListener {
                 Order order = (Order) rabbitTemplate.getMessageConverter().fromMessage(message);
                 System.out.println(String.format("Processing order from queue: %s", order.getId()));
                 
-                // Set processing start date
                 order.setProcessingStartDate(LocalDateTime.now());
                 order.setStatus(OrderStatus.PROCESSING);
                 
-                // Save the order with processing start date
                 order = orderRepository.save(order);
                 System.out.println(String.format("Order processing started: %s", order.getId()));
                 
-                // Simulate some processing time (you can replace this with actual processing logic)
                 Thread.sleep(2000);
-                
-                // Set processing end date and update status
+
                 order.setProcessingEndDate(LocalDateTime.now());
                 order.setStatus(OrderStatus.COMPLETED);
                 
-                // Save the order with processing end date
                 order = orderRepository.save(order);
                 System.out.println(String.format("Order processing completed: %s", order.getId()));
                 
             } catch (Exception e) {
                 System.out.println(String.format("Error processing order: %s", e.getMessage()));
-                // You might want to implement a dead letter queue here
             }
         } else {
             System.out.println("No orders to process in the queue");

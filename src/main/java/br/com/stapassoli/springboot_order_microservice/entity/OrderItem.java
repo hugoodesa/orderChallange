@@ -42,7 +42,6 @@ public class OrderItem {
         this.itemTotal = unitPrice.multiply(new BigDecimal(quantity));
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }

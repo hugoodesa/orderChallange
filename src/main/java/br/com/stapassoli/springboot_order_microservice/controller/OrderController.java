@@ -6,6 +6,8 @@ import br.com.stapassoli.springboot_order_microservice.entity.Order;
 import br.com.stapassoli.springboot_order_microservice.mapper.OrderMapper;
 import br.com.stapassoli.springboot_order_microservice.service.OrderService;
 import jakarta.validation.Valid;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,29 +27,32 @@ public class OrderController {
         this.orderMapper = orderMapper;
     }
 
+    @CacheEvict(value = {"order", "orderList"}, allEntries = true)
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderRequestDTO orderRequestDTO) {
+    public OrderDTO createOrder(@Valid @RequestBody OrderRequestDTO orderRequestDTO) {
         Order order = orderService.createOrder(orderRequestDTO);
-        OrderDTO orderDTO = orderMapper.toDTO(order);
-        return new ResponseEntity<>(orderDTO, HttpStatus.CREATED);
+        return orderMapper.toDTO(order);
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<OrderDTO> getOrder(@PathVariable Long orderId) {
+    @ResponseStatus(HttpStatus.OK)
+    public OrderDTO getOrder(@PathVariable Long orderId) {
         Order order = orderService.findByOrderId(orderId);
-        OrderDTO orderDTO = orderMapper.toDTO(order);
-        return new ResponseEntity<>(orderDTO, HttpStatus.OK);
+        return orderMapper.toDTO(order);
     }
 
+    @Cacheable(value = "orderList", key = "'all'")
     @GetMapping
-    public ResponseEntity<List<OrderDTO>> getAllOrders() {
+    @ResponseStatus(HttpStatus.OK)
+    public List<OrderDTO> getAllOrders() {
         List<Order> orders = orderService.findAllOrders();
-        List<OrderDTO> orderDTOs = orders.stream()
+        return orders.stream()
                 .map(orderMapper::toDTO)
                 .collect(Collectors.toList());
-        return new ResponseEntity<>(orderDTOs, HttpStatus.OK);
     }
 
+    @CacheEvict(value = {"order", "orderList"}, allEntries = true)
     @PutMapping("/{orderId}")
     public ResponseEntity<OrderDTO> updateOrder(
             @PathVariable Long orderId,
@@ -57,6 +62,7 @@ public class OrderController {
         return new ResponseEntity<>(orderDTO, HttpStatus.OK);
     }
 
+    @CacheEvict(value = {"order", "orderList"}, allEntries = true)
     @DeleteMapping("/{orderId}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long orderId) {
         orderService.deleteOrder(orderId);
@@ -70,6 +76,7 @@ public class OrderController {
         return new ResponseEntity<>(orderDTO, HttpStatus.OK);
     }
 
+    @CacheEvict(value = {"order", "orderList"}, allEntries = true)
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<OrderDTO> cancelOrder(@PathVariable Long orderId) {
         Order order = orderService.cancelOrder(orderId);
@@ -77,6 +84,7 @@ public class OrderController {
         return new ResponseEntity<>(orderDTO, HttpStatus.OK);
     }
 
+    @CacheEvict(value = {"order", "orderList"}, allEntries = true)
     @PostMapping("/{orderId}/complete")
     public ResponseEntity<OrderDTO> completeOrder(@PathVariable Long orderId) {
         Order order = orderService.completeOrder(orderId);

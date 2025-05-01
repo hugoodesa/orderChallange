@@ -1,5 +1,6 @@
 package br.com.stapassoli.springboot_order_microservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.*;
@@ -14,8 +15,9 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
+    @JsonBackReference
     private Order order;
 
     @Column(nullable = false)
@@ -40,6 +42,7 @@ public class OrderItem {
         this.itemTotal = unitPrice.multiply(new BigDecimal(quantity));
     }
 
+    // Getters and Setters
     public Long getId() {
         return id;
     }

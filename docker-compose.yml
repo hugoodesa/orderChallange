@@ -1,29 +1,54 @@
 version: '3.8'
 
 services:
-  rabbitmq:
-    image: rabbitmq:latest
-    container_name: rabbitmq
-    restart: always
-    ports:
-      - 5672:5672
-      - 15672:15672
+  postgres:
+    image: postgres:15
+    container_name: order-service-postgres
     environment:
-      RABBITMQ_DEFAULT_USER: kalo
-      RABBITMQ_DEFAULT_PASS: kalo
-    configs:
-      - source: rabbitmq-plugins
-        target: /etc/rabbitmq/enabled_plugins
+      POSTGRES_DB: orderdb
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
     volumes:
-      - rabbitmq-lib:/var/lib/rabbitmq/
-      - rabbitmq-log:/var/log/rabbitmq
+      - postgres_data:/var/lib/postgresql/data
 
-configs:
-  rabbitmq-plugins:
-    content: "[rabbitmq_management]."
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: order-service-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=kalo
+      - RABBITMQ_DEFAULT_PASS=kalo
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  app:
+    build: .
+    container_name: order-service-app
+    depends_on:
+      - postgres
+      - rabbitmq
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/orderdb
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: kalo
+      SPRING_RABBITMQ_PASSWORD: kalo
+      SPRING_RABBITMQ_TEMPLATE_EXCHANGE: order.exchange
+    ports:
+      - "8080:8080"
+    restart: on-failure
 
 volumes:
-  rabbitmq-lib:
-    driver: local
-  rabbitmq-log:
-    driver: local
+  postgres_data:
+  rabbitmq_data:
